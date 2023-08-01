@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductStoreRequest;
+use App\Http\Requests\ProductUpdateRequest;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -16,16 +17,11 @@ class ProductController extends Controller
     {
         return Product::all();
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    
+    public function store(ProductStoreRequest $request)
     {
-        return Product::create($request->only('name','price'));
+        $Product = Product::create($request->only('name','price'));
+        return $Product;
     }
 
     /**
@@ -46,9 +42,10 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ProductUpdateRequest $request, $id)
     {
-        return Product::find($id)->update($request->only('name','price'));
+        $Product = Product::find($id)->update($request->only('name','price'));
+        return $Product;
     }
 
     /**
