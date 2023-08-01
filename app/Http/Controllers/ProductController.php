@@ -20,8 +20,8 @@ class ProductController extends Controller
     
     public function store(ProductStoreRequest $request)
     {
-        $Product = Product::create($request->only('name','price'));
-        return $Product;
+        return Product::create($request->only('name','price'));
+        
     }
 
     /**
@@ -30,9 +30,9 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Product $product)
     {
-        return Product::find($id);
+        return $product;
     }
 
     /**
@@ -42,10 +42,9 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(ProductUpdateRequest $request, $id)
+    public function update(ProductUpdateRequest $request, Product $product)
     {
-        $Product = Product::find($id)->update($request->only('name','price'));
-        return $Product;
+        return $product->update($request->only('name','price'));
     }
 
     /**
@@ -54,8 +53,8 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Product $product)
     {
-        return Product::find($id)->delete();
+        return $product->delete();
     }
 }
