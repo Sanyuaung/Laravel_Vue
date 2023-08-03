@@ -9,7 +9,11 @@
             <div class="col-4">
                 <form>
                     <div class="input-group">
-                        <input type="text" placeholder="Search" class="form-control">
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            class="form-control"
+                        />
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-search"></i>
@@ -27,11 +31,14 @@
                         <form>
                             <div class="form-group">
                                 <label class="mb-2">Name: </label>
-                                <input type="text" class="form-control mb-2">
+                                <input type="text" class="form-control mb-2" />
                             </div>
                             <div class="form-group">
                                 <label class="mb-2">Price: </label>
-                                <input type="number" class="form-control mb-2">
+                                <input
+                                    type="number"
+                                    class="form-control mb-2"
+                                />
                             </div>
                             <button class="btn btn-primary">
                                 <i class="fas fa-save"></i> Save
@@ -51,13 +58,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Book</td>
-                            <td>1000</td>
+                        <tr v-for="product in products" :key="product.id">
+                            <td>{{ product.id }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.price }}</td>
                             <td>
-                                <button class="btn btn-success btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Delete</button>
+                                <button class="btn btn-success btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -68,9 +79,29 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-    setup() {
-        
-    }
-}
+    name: "ProductComponent",
+    data() {
+        return {
+            products: [],
+        };
+    },
+    methods: {
+        view() {
+            axios
+                .get("/api/product")
+                .then((response) => {
+                    this.products = response.data;
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+    },
+    created() {
+        this.view();
+    },
+};
 </script>
