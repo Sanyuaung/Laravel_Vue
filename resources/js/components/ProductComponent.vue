@@ -2,7 +2,7 @@
     <div class="container my-5">
         <div class="row justify-content-end mb-3">
             <div class="col-4">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" @click="create">
                     <i class="fas fa-plus-circle"></i> Create
                 </button>
             </div>
@@ -26,9 +26,9 @@
         <div class="row">
             <div class="col-4">
                 <div class="card">
-                    <h4 class="card-header">Create</h4>
+                    <h4 class="card-header">{{ isEditMode ? 'Edit' : 'Create' }}</h4>
                     <div class="card-body">
-                        <form @submit.prevent="store">
+                        <form @submit.prevent="isEditMode ? update() : store()">
                             <div class="form-group">
                                 <label class="mb-2">Name: </label>
                                 <input v-model="product.name" type="text" class="form-control mb-2" />
@@ -63,10 +63,10 @@
                             <td>{{ product.name }}</td>
                             <td>{{ product.price }}</td>
                             <td>
-                                <button class="btn btn-success btn-sm">
+                                <button class="btn btn-success btn-sm" @click="edit(product)">
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
-                                <button class="btn btn-danger btn-sm">
+                                <button class="btn btn-danger btn-sm" @click="destory(product.id)">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </button>
                             </td>
@@ -85,8 +85,10 @@ export default {
     name: "ProductComponent",
     data() {
         return {
+            isEditMode: false,
             products: [],
             product: {
+                id: '',
                 name: '',
                 price: ''
             }
@@ -103,17 +105,47 @@ export default {
                     console.log(error);
                 });
         },
+        create() {
+            this.isEditMode = false;
+            this.product.id = '';
+            this.product.name = '';
+            this.product.price = '';
+        },
         store() {
             axios
                 .post("/api/product", this.product)
                 .then(response => {
                     this.view();
-                    this.product = {
-                        name: '',
-                        price: ''
-                    }
-                }
-                )
+                    this.product.id = '';
+                    this.product.name = '';
+                    this.product.price = '';
+                });
+        },
+        edit(product) {
+            this.isEditMode = true;
+            this.product.id = product.id;
+            this.product.name = product.name;
+            this.product.price = product.price;
+
+        },
+        update() {
+            axios
+                .put(`/api/product/${this.product.id}`, this.product)
+                .then(response => {
+                    this.view();
+                    this.isEditMode = false;
+                    this.product.id = '';
+                    this.product.name = '';
+                    this.product.price = '';
+                });
+        },
+        destory(id) {
+            if(!confirm('Are you sure to delete?')){
+                return;
+            }
+            axios
+                .delete(`/api/product/${id}`)
+                .then(response => this.view())
         }
     },
     created() {
