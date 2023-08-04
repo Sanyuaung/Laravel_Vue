@@ -28,19 +28,19 @@
                 <div class="card">
                     <h4 class="card-header">Create</h4>
                     <div class="card-body">
-                        <form>
+                        <form @submit.prevent="store">
                             <div class="form-group">
                                 <label class="mb-2">Name: </label>
-                                <input type="text" class="form-control mb-2" />
+                                <input v-model="product.name" type="text" class="form-control mb-2" />
                             </div>
                             <div class="form-group">
                                 <label class="mb-2">Price: </label>
-                                <input
+                                <input v-model="product.price"
                                     type="number"
                                     class="form-control mb-2"
                                 />
                             </div>
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" type="submit">
                                 <i class="fas fa-save"></i> Save
                             </button>
                         </form>
@@ -86,19 +86,35 @@ export default {
     data() {
         return {
             products: [],
+            product: {
+                name: '',
+                price: ''
+            }
         };
     },
     methods: {
         view() {
             axios
                 .get("/api/product")
-                .then((response) => {
+                .then(response => {
                     this.products = response.data;
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.log(error);
                 });
         },
+        store() {
+            axios
+                .post("/api/product", this.product)
+                .then(response => {
+                    this.view();
+                    this.product = {
+                        name: '',
+                        price: ''
+                    }
+                }
+                )
+        }
     },
     created() {
         this.view();
