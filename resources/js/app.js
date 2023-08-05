@@ -1,10 +1,12 @@
-require('./bootstrap');
+import { createApp } from 'vue';
+import ExampleComponent from './components/ExampleComponent.vue';
+import ProductComponent from './components/ProductComponent.vue';
 
-window.Vue = require('vue').default;
-
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-Vue.component('product-component', require('./components/ProductComponent.vue').default);
-
-const app = new Vue({
-    el: '#app',
+const app = createApp({
+    // App options here
 });
+
+app.component('example-component', ExampleComponent);
+app.component('product-component', ProductComponent);
+
+app.mount('#app');
