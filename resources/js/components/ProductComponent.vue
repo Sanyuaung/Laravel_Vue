@@ -31,24 +31,45 @@
                         {{ isEditMode ? "Edit" : "Create" }}
                     </h4>
                     <div class="card-body">
-                        <form @submit.prevent="isEditMode ? update() : store()">
-                            <div class="form-group">
+                        <AlertError
+                            :form="product"
+                            :message="message"
+                        ></AlertError>
+                        <form
+                            @submit.prevent="isEditMode ? update() : store()"
+                            @keydown="product.onKeydown($event)"
+                        >
+                            <div class="form-group mb-2">
                                 <label class="mb-2">Name: </label>
                                 <input
+                                    :class="{
+                                        'is-invalid':
+                                            product.errors.has('name'),
+                                    }"
                                     v-model="product.name"
                                     type="text"
                                     class="form-control mb-2"
                                 />
+                                <HasError :form="product" field="name" />
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-2">
                                 <label class="mb-2">Price: </label>
                                 <input
+                                    :class="{
+                                        'is-invalid':
+                                            product.errors.has('price'),
+                                    }"
                                     v-model="product.price"
                                     type="number"
                                     class="form-control mb-2"
                                 />
+                                <HasError :form="product" field="price" />
                             </div>
-                            <button class="btn btn-primary" type="submit">
+                            <button
+                                class="btn btn-primary"
+                                type="submit"
+                                :disabled="product.busy"
+                            >
                                 <i class="fas fa-save"></i> Save
                             </button>
                         </form>
@@ -99,22 +120,28 @@
 <script>
 import axios from "axios";
 import { Bootstrap5Pagination } from "laravel-vue-pagination";
+import Form from "vform";
+import { Button, HasError, AlertError } from "vform/src/components/bootstrap5";
 
 export default {
     name: "ProductComponent",
     components: {
         Bootstrap5Pagination,
+        Button,
+        HasError,
+        AlertError,
     },
     data() {
         return {
+            message: "",
             isEditMode: false,
             search: "",
             products: {},
-            product: {
+            product: new Form({
                 id: "",
                 name: "",
                 price: "",
-            },
+            }),
         };
     },
     methods: {
@@ -129,34 +156,36 @@ export default {
                 });
         },
         create() {
+            this.product.clear();
             this.isEditMode = false;
-            this.product.id = "";
-            this.product.name = "";
-            this.product.price = "";
+            this.product.reset();
         },
         store() {
-            axios.post("/api/product", this.product).then((response) => {
-                this.view();
-                this.product.id = "";
-                this.product.name = "";
-                this.product.price = "";
-            });
+            this.product
+                .post("/api/product")
+                .then((response) => {
+                    this.view();
+                    this.product.reset();
+                })
+                .catch((error) => {
+                    this.message = error.response.data.message;
+                });
         },
         edit(product) {
+            this.product.clear();
             this.isEditMode = true;
-            this.product.id = product.id;
-            this.product.name = product.name;
-            this.product.price = product.price;
+            this.product.fill(product);
         },
         update() {
-            axios
-                .put(`/api/product/${this.product.id}`, this.product)
+            this.product
+                .put(`/api/product/${this.product.id}`)
                 .then((response) => {
                     this.view();
                     this.isEditMode = false;
-                    this.product.id = "";
-                    this.product.name = "";
-                    this.product.price = "";
+                    this.product.reset();
+                })
+                .catch((error) => {
+                    this.message = error.response.data.message;
                 });
         },
         destory(id) {
