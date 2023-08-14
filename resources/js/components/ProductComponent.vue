@@ -114,6 +114,13 @@
                 ></Bootstrap5Pagination>
             </div>
         </div>
+        <loading
+            v-model:active="isLoading"
+            :on-cancel="onCancel"
+            :is-full-page="true"
+            color = "#0d6efd"
+            loader = "dots"
+        />
     </div>
 </template>
 
@@ -123,6 +130,8 @@ import { Bootstrap5Pagination } from "laravel-vue-pagination";
 import Form from "vform";
 import { Button, HasError, AlertError } from "vform/src/components/bootstrap5";
 import Swal from "sweetalert2";
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 
 export default {
     name: "ProductComponent",
@@ -132,9 +141,11 @@ export default {
         HasError,
         AlertError,
         Swal,
+        Loading
     },
     data() {
         return {
+            isLoading: false,
             message: "",
             isEditMode: false,
             search: "",
@@ -149,14 +160,18 @@ export default {
     methods: {
         view(page = 1) {
             this.$Progress.start();
+            this.isLoading = true;
             axios
                 .get(`/api/product?page=${page}&search=${this.search}`)
                 .then((response) => {
                     this.products = response.data;
                     this.$Progress.finish();
+                    this.isLoading = false;
                 })
                 .catch((error) => {
                     this.$Progress.fail();
+                    this.isLoading = false;
+
                 });
         },
         create() {
