@@ -122,6 +122,7 @@ import axios from "axios";
 import { Bootstrap5Pagination } from "laravel-vue-pagination";
 import Form from "vform";
 import { Button, HasError, AlertError } from "vform/src/components/bootstrap5";
+import Swal from "sweetalert2";
 
 export default {
     name: "ProductComponent",
@@ -130,6 +131,7 @@ export default {
         Button,
         HasError,
         AlertError,
+        Swal,
     },
     data() {
         return {
@@ -166,6 +168,28 @@ export default {
                 .then((response) => {
                     this.view();
                     this.product.reset();
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener(
+                                "mouseenter",
+                                Swal.stopTimer
+                            );
+                            toast.addEventListener(
+                                "mouseleave",
+                                Swal.resumeTimer
+                            );
+                        },
+                    });
+
+                    Toast.fire({
+                        icon: "success",
+                        title: "Created successfully",
+                    });
                 })
                 .catch((error) => {
                     this.message = error.response.data.message;
@@ -183,16 +207,74 @@ export default {
                     this.view();
                     this.isEditMode = false;
                     this.product.reset();
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener(
+                                "mouseenter",
+                                Swal.stopTimer
+                            );
+                            toast.addEventListener(
+                                "mouseleave",
+                                Swal.resumeTimer
+                            );
+                        },
+                    });
+
+                    Toast.fire({
+                        icon: "success",
+                        title: "Updated successfully",
+                    });
                 })
                 .catch((error) => {
                     this.message = error.response.data.message;
                 });
         },
         destory(id) {
-            if (!confirm("Are you sure to delete?")) {
-                return;
-            }
-            axios.delete(`/api/product/${id}`).then((response) => this.view());
+            Swal.fire({
+                title: "Are you sure?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Delete",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`/api/product/${id}`).then((response) => {
+                        this.view();
+                        // Swal.fire({
+                        //     title: "Deleted!",
+                        //     icon: "success",
+                        // });
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener(
+                                    "mouseenter",
+                                    Swal.stopTimer
+                                );
+                                toast.addEventListener(
+                                    "mouseleave",
+                                    Swal.resumeTimer
+                                );
+                            },
+                        });
+
+                        Toast.fire({
+                            icon: "success",
+                            title: "Deleted successfully",
+                        });
+                    });
+                }
+            });
         },
     },
     created() {
