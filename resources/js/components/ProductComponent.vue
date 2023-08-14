@@ -148,13 +148,15 @@ export default {
     },
     methods: {
         view(page = 1) {
+            this.$Progress.start();
             axios
                 .get(`/api/product?page=${page}&search=${this.search}`)
                 .then((response) => {
                     this.products = response.data;
+                    this.$Progress.finish();
                 })
                 .catch((error) => {
-                    console.log(error);
+                    this.$Progress.fail();
                 });
         },
         create() {
